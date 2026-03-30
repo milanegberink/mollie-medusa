@@ -38,7 +38,10 @@ import createMollieClient, {
   PaymentStatus,
 } from "@mollie/api-client";
 import { UpdateParameters } from "@mollie/api-client/dist/types/binders/payments/parameters";
-import { PaymentData } from "@mollie/api-client/dist/types/data/payments/data";
+import {
+  PaymentData,
+  PaymentLineType,
+} from "@mollie/api-client/dist/types/data/payments/data";
 import { PaymentOptions, ProviderOptions } from "../types";
 
 /**
@@ -145,10 +148,30 @@ abstract class MollieBase extends AbstractPaymentProvider {
     const email = (data?.email ?? context?.customer?.email) as
       | string
       | undefined;
+    const lines = ((data?.items ?? []) as any[]).map((item) => ({
+      type: PaymentLineType.physical,
+      name: item.title || item.variant?.product?.title || "Product",
+      description: item.title || item.variant?.product?.title || "Product", // add this
+      quantity: item.quantity,
+      unitPrice: {
+        currency: currency_code.toUpperCase(),
+        value: (item.unit_price / 100).toFixed(2),
+      },
+      totalAmount: {
+        currency: currency_code.toUpperCase(),
+        value: ((item.unit_price * item.quantity) / 100).toFixed(2),
+      },
+      vatRate: "0.00",
+      vatAmount: {
+        currency: currency_code.toUpperCase(),
+        value: "0.00",
+      },
+    }));
 
     try {
       const createParams: PaymentCreateParams = {
         ...normalizedParams,
+
         billingAddress: {
           streetAndNumber: billing?.address_1 || "",
           givenName: billing?.first_name || "",
@@ -159,6 +182,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
           country: billing?.country_code || "",
         },
         billingEmail: email || "",
+        lines,
         amount: {
           value: parseFloat(amount.toString()).toFixed(2),
           currency: currency_code.toUpperCase(),
