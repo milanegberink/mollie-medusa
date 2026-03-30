@@ -38,10 +38,10 @@ import createMollieClient, {
   PaymentStatus,
 } from "@mollie/api-client";
 import { UpdateParameters } from "@mollie/api-client/dist/types/binders/payments/parameters";
-import {
-  PaymentData,
+import type {
+  Payment as PaymentData,
   PaymentLineType,
-} from "@mollie/api-client/dist/types/data/payments/data";
+} from "@mollie/api-client";
 import { PaymentOptions, ProviderOptions } from "../types";
 
 /**
@@ -149,7 +149,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       | string
       | undefined;
     const lines = ((data?.items ?? []) as any[]).map((item) => ({
-      type: PaymentLineType.physical,
+      type: "physical" as PaymentLineType,
       name: item.title || item.variant?.product?.title || "Product",
       description: item.title || item.variant?.product?.title || "Product", // add this
       quantity: item.quantity,
