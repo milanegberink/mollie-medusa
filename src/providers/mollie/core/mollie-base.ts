@@ -130,7 +130,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
     amount,
     currency_code,
   }: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
-    console.log("Payment data:", JSON.stringify(data, null, 2));
+    const shippingTotal = data?.shipping_total as number;
 
     const normalizedParams = this.normalizePaymentCreateParams();
 
@@ -148,25 +148,51 @@ abstract class MollieBase extends AbstractPaymentProvider {
     const email = (data?.email ?? context?.customer?.email) as
       | string
       | undefined;
-    const lines = ((data?.items ?? []) as any[]).map((item) => ({
-      type: "physical" as PaymentLineType,
-      name: item.title || item.variant?.product?.title || "Product",
-      description: item.title || item.variant?.product?.title || "Product", // add this
-      quantity: item.quantity,
-      unitPrice: {
-        currency: currency_code.toUpperCase(),
-        value: (item.unit_price / 100).toFixed(2),
-      },
-      totalAmount: {
-        currency: currency_code.toUpperCase(),
-        value: ((item.unit_price * item.quantity) / 100).toFixed(2),
-      },
-      vatRate: "0.00",
-      vatAmount: {
-        currency: currency_code.toUpperCase(),
-        value: "0.00",
-      },
-    }));
+    const lines = [
+      ...((data?.items ?? []) as any[]).map((item) => ({
+        type: "physical" as PaymentLineType,
+        name: item.title || item.variant?.product?.title || "Product",
+        description: item.title || item.variant?.product?.title || "Product",
+        quantity: item.quantity,
+        unitPrice: {
+          currency: currency_code.toUpperCase(),
+          value: item.unit_price,
+        },
+        totalAmount: {
+          currency: currency_code.toUpperCase(),
+          value: (item.unit_price * item.quantity).toFixed(2),
+        },
+        vatRate: "0.00",
+        vatAmount: {
+          currency: currency_code.toUpperCase(),
+          value: "0.00",
+        },
+      })),
+      // Only append shipping line if there's a shipping cost
+      ...(shippingTotal > 0
+        ? [
+            {
+              type: "shipping_fee" as PaymentLineType,
+              name: "Shipping",
+              description: "Shipping",
+              quantity: 1,
+              unitPrice: {
+                currency: currency_code.toUpperCase(),
+                value: shippingTotal.toFixed(2),
+              },
+              totalAmount: {
+                currency: currency_code.toUpperCase(),
+                value: shippingTotal.toFixed(2),
+              },
+              vatRate: "0.00",
+              vatAmount: {
+                currency: currency_code.toUpperCase(),
+                value: "0.00",
+              },
+            },
+          ]
+        : []),
+    ];
 
     try {
       const createParams: PaymentCreateParams = {
