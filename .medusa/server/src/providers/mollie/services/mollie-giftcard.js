@@ -1,44 +1,23 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-Object.defineProperty(exports, "default", {
-    enumerable: true,
-    get: function() {
-        return _default;
-    }
-});
-const _apiclient = require("@mollie/api-client");
-const _molliebase = /*#__PURE__*/ _interop_require_default(require("../core/mollie-base"));
-const _types = require("../types");
-function _define_property(obj, key, value) {
-    if (key in obj) {
-        Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-        });
-    } else {
-        obj[key] = value;
-    }
-    return obj;
-}
-function _interop_require_default(obj) {
-    return obj && obj.__esModule ? obj : {
-        default: obj
-    };
-}
-let MollieGiftcardService = class MollieGiftcardService extends _molliebase.default {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const api_client_1 = require("@mollie/api-client");
+const mollie_base_1 = __importDefault(require("../core/mollie-base"));
+const types_1 = require("../types");
+class MollieGiftcardService extends mollie_base_1.default {
     get paymentCreateOptions() {
         return {
-            method: _apiclient.PaymentMethod.giftcard,
-            webhookUrl: this.options_.medusaUrl + "/hooks/payment/" + _types.PaymentProviderKeys.GIFT_CARD + "_mollie",
-            captureMethod: _apiclient.CaptureMethod.automatic
+            method: api_client_1.PaymentMethod.giftcard,
+            webhookUrl: this.options_.medusaUrl +
+                "/hooks/payment/" +
+                types_1.PaymentProviderKeys.GIFT_CARD +
+                "_mollie",
+            captureMethod: api_client_1.CaptureMethod.automatic,
         };
     }
-};
-_define_property(MollieGiftcardService, "identifier", _types.PaymentProviderKeys.GIFT_CARD);
-const _default = MollieGiftcardService;
-
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9wcm92aWRlcnMvbW9sbGllL3NlcnZpY2VzL21vbGxpZS1naWZ0Y2FyZC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDYXB0dXJlTWV0aG9kLCBQYXltZW50TWV0aG9kIH0gZnJvbSBcIkBtb2xsaWUvYXBpLWNsaWVudFwiO1xuaW1wb3J0IE1vbGxpZUJhc2UgZnJvbSBcIi4uL2NvcmUvbW9sbGllLWJhc2VcIjtcbmltcG9ydCB7IFBheW1lbnRPcHRpb25zLCBQYXltZW50UHJvdmlkZXJLZXlzIH0gZnJvbSBcIi4uL3R5cGVzXCI7XG5cbmNsYXNzIE1vbGxpZUdpZnRjYXJkU2VydmljZSBleHRlbmRzIE1vbGxpZUJhc2Uge1xuICBzdGF0aWMgaWRlbnRpZmllciA9IFBheW1lbnRQcm92aWRlcktleXMuR0lGVF9DQVJEO1xuXG4gIGdldCBwYXltZW50Q3JlYXRlT3B0aW9ucygpOiBQYXltZW50T3B0aW9ucyB7XG4gICAgcmV0dXJuIHtcbiAgICAgIG1ldGhvZDogUGF5bWVudE1ldGhvZC5naWZ0Y2FyZCxcbiAgICAgIHdlYmhvb2tVcmw6XG4gICAgICAgIHRoaXMub3B0aW9uc18ubWVkdXNhVXJsICtcbiAgICAgICAgXCIvaG9va3MvcGF5bWVudC9cIiArXG4gICAgICAgIFBheW1lbnRQcm92aWRlcktleXMuR0lGVF9DQVJEICtcbiAgICAgICAgXCJfbW9sbGllXCIsXG4gICAgICBjYXB0dXJlTWV0aG9kOiBDYXB0dXJlTWV0aG9kLmF1dG9tYXRpYyxcbiAgICB9O1xuICB9XG59XG5cbmV4cG9ydCBkZWZhdWx0IE1vbGxpZUdpZnRjYXJkU2VydmljZTtcbiJdLCJuYW1lcyI6WyJNb2xsaWVHaWZ0Y2FyZFNlcnZpY2UiLCJNb2xsaWVCYXNlIiwicGF5bWVudENyZWF0ZU9wdGlvbnMiLCJtZXRob2QiLCJQYXltZW50TWV0aG9kIiwiZ2lmdGNhcmQiLCJ3ZWJob29rVXJsIiwib3B0aW9uc18iLCJtZWR1c2FVcmwiLCJQYXltZW50UHJvdmlkZXJLZXlzIiwiR0lGVF9DQVJEIiwiY2FwdHVyZU1ldGhvZCIsIkNhcHR1cmVNZXRob2QiLCJhdXRvbWF0aWMiLCJpZGVudGlmaWVyIl0sInJhbmdlTWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OyIsIm1hcHBpbmdzIjoiOzs7OytCQW9CQTs7O2VBQUE7OzsyQkFwQjZDO21FQUN0Qjt1QkFDNkI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFFcEQsSUFBQSxBQUFNQSx3QkFBTixNQUFNQSw4QkFBOEJDLG1CQUFVO0lBRzVDLElBQUlDLHVCQUF1QztRQUN6QyxPQUFPO1lBQ0xDLFFBQVFDLHdCQUFhLENBQUNDLFFBQVE7WUFDOUJDLFlBQ0UsSUFBSSxDQUFDQyxRQUFRLENBQUNDLFNBQVMsR0FDdkIsb0JBQ0FDLDBCQUFtQixDQUFDQyxTQUFTLEdBQzdCO1lBQ0ZDLGVBQWVDLHdCQUFhLENBQUNDLFNBQVM7UUFDeEM7SUFDRjtBQUNGO0FBYkUsaUJBREliLHVCQUNHYyxjQUFhTCwwQkFBbUIsQ0FBQ0MsU0FBUztNQWVuRCxXQUFlViJ9
+}
+MollieGiftcardService.identifier = types_1.PaymentProviderKeys.GIFT_CARD;
+exports.default = MollieGiftcardService;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibW9sbGllLWdpZnRjYXJkLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vLi4vLi4vLi4vLi4vc3JjL3Byb3ZpZGVycy9tb2xsaWUvc2VydmljZXMvbW9sbGllLWdpZnRjYXJkLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7O0FBQUEsbURBQWtFO0FBQ2xFLHNFQUE2QztBQUM3QyxvQ0FBK0Q7QUFFL0QsTUFBTSxxQkFBc0IsU0FBUSxxQkFBVTtJQUc1QyxJQUFJLG9CQUFvQjtRQUN0QixPQUFPO1lBQ0wsTUFBTSxFQUFFLDBCQUFhLENBQUMsUUFBUTtZQUM5QixVQUFVLEVBQ1IsSUFBSSxDQUFDLFFBQVEsQ0FBQyxTQUFTO2dCQUN2QixpQkFBaUI7Z0JBQ2pCLDJCQUFtQixDQUFDLFNBQVM7Z0JBQzdCLFNBQVM7WUFDWCxhQUFhLEVBQUUsMEJBQWEsQ0FBQyxTQUFTO1NBQ3ZDLENBQUM7SUFDSixDQUFDOztBQVpNLGdDQUFVLEdBQUcsMkJBQW1CLENBQUMsU0FBUyxDQUFDO0FBZXBELGtCQUFlLHFCQUFxQixDQUFDIn0=
