@@ -7,7 +7,7 @@ class MollieKlarnaService extends MollieBase {
 
   get paymentCreateOptions(): PaymentOptions {
     return {
-      method: PaymentMethod.klarna,
+      method: PaymentMethod.klarnapaylater,
     };
   }
 }
