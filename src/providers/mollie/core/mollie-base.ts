@@ -193,11 +193,13 @@ abstract class MollieBase extends AbstractPaymentProvider {
         : []),
     ];
     console.dir(lines, { depth: null });
+    const { captureMode, ...validNormalizedParams } = normalizedParams;
+
     try {
       const createParams: OrderCreateParams = {
         // ← Orders type
-        ...normalizedParams,
-        locale: normalizedParams.locale ?? "nl_NL",
+        ...validNormalizedParams,
+        locale: validNormalizedParams.locale ?? "nl_NL",
         orderNumber: context?.idempotency_key ?? `order-${Date.now()}`, // ← required field
         billingAddress: {
           streetAndNumber: billing?.address_1 || "",
