@@ -39,6 +39,8 @@ import createMollieClient, {
 } from "@mollie/api-client";
 import { UpdateParameters } from "@mollie/api-client/dist/types/binders/payments/parameters";
 import type {
+  OrderCreateParams,
+  OrderLineType,
   Payment as PaymentData,
   PaymentLineType,
 } from "@mollie/api-client";
@@ -131,9 +133,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
     currency_code,
   }: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
     const shippingTotal = data?.shipping_total as number;
-
     const normalizedParams = this.normalizePaymentCreateParams();
-
     const billing = (data?.billing_address ??
       context?.customer?.billing_address) as
       | {
@@ -150,7 +150,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       | undefined;
     const lines = [
       ...((data?.items ?? []) as any[]).map((item) => ({
-        type: "physical" as PaymentLineType,
+        type: "physical" as OrderLineType,
         name: item.title || item.variant?.product?.title || "Product",
         description: item.title || item.variant?.product?.title || "Product",
         quantity: item.quantity,
@@ -168,11 +168,10 @@ abstract class MollieBase extends AbstractPaymentProvider {
           value: "0.00",
         },
       })),
-      // Only append shipping line if there's a shipping cost
       ...(shippingTotal > 0
         ? [
             {
-              type: "shipping_fee" as PaymentLineType,
+              type: "shipping_fee" as OrderLineType,
               name: "Shipping",
               description: "Shipping",
               quantity: 1,
@@ -193,13 +192,13 @@ abstract class MollieBase extends AbstractPaymentProvider {
           ]
         : []),
     ];
-
     console.dir(lines, { depth: null });
-
     try {
-      const createParams: PaymentCreateParams = {
+      const createParams: OrderCreateParams = {
+        // ← Orders type
         ...normalizedParams,
-
+        locale: normalizedParams.locale ?? "nl_NL",
+        orderNumber: context?.idempotency_key ?? `order-${Date.now()}`, // ← required field
         billingAddress: {
           streetAndNumber: billing?.address_1 || "",
           givenName: billing?.first_name || "",
@@ -208,44 +207,51 @@ abstract class MollieBase extends AbstractPaymentProvider {
           postalCode: billing?.postal_code || "",
           city: billing?.city || "",
           country: billing?.country_code || "",
+          organizationName: "", // ← required by OrderAddress
+          phone: "", // ← required by OrderAddress
         },
-        billingEmail: email || "",
+        shippingAddress: {
+          // ← explicitly override to satisfy OrderAddress
+          streetAndNumber: billing?.address_1 || "",
+          givenName: billing?.first_name || "",
+          familyName: billing?.last_name || "",
+          email: email || "",
+          postalCode: billing?.postal_code || "",
+          city: billing?.city || "",
+          country: billing?.country_code || "",
+          organizationName: "",
+          phone: "",
+        },
         lines,
         amount: {
           value: parseFloat(amount.toString()).toFixed(2),
           currency: currency_code.toUpperCase(),
         },
-        description:
-          this.options_.description || "Mollie payment created by Medusa",
+
         redirectUrl: this.options_.redirectUrl,
         metadata: {
           idempotency_key: context?.idempotency_key,
         },
       };
-
-      const data = await this.client_.payments
+      const order = await this.client_.orders // ← renamed from `data`
         .create(createParams)
-        .then((payment) => {
-          return payment as Record<string, any>;
+        .then((order) => {
+          return order as Record<string, any>;
         })
         .catch((error) => {
-          this.logger_.error(
-            `Mollie payment creation failed: ${error.message}`,
-          );
+          this.logger_.error(`Mollie order creation failed: ${error.message}`);
           throw new MedusaError(MedusaError.Types.INVALID_DATA, error.message);
         });
-
       this.debug_ &&
         this.logger_.info(
-          `Mollie payment ${data.id} successfully created with amount ${amount}`,
+          `Mollie order ${order.id} successfully created with amount ${amount}`,
         );
-
       return {
-        id: data.id,
-        data: data,
+        id: order.id,
+        data: order,
       };
     } catch (error) {
-      this.logger_.error(`Error initiating Mollie payment: ${error.message}`);
+      this.logger_.error(`Error initiating Mollie order: ${error.message}`);
       throw error;
     }
   }
