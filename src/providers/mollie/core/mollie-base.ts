@@ -150,7 +150,6 @@ abstract class MollieBase extends AbstractPaymentProvider {
     const lines = [
       ...((data?.items ?? []) as any[]).map((item) => ({
         type: "physical" as PaymentLineType,
-        name: item.title || item.variant?.product?.title || "Product",
         description: item.title || item.variant?.product?.title || "Product",
         quantity: item.quantity,
         unitPrice: {
@@ -171,7 +170,6 @@ abstract class MollieBase extends AbstractPaymentProvider {
         ? [
             {
               type: "shipping_fee" as PaymentLineType,
-              name: "Shipping",
               description: "Shipping",
               quantity: 1,
               unitPrice: {
