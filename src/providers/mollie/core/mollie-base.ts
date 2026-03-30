@@ -156,7 +156,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
         quantity: item.quantity,
         unitPrice: {
           currency: currency_code.toUpperCase(),
-          value: item.unit_price,
+          value: item.unit_price.toFixed(2),
         },
         totalAmount: {
           currency: currency_code.toUpperCase(),
