@@ -66,7 +66,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
     if (!options.apiKey || !options.redirectUrl || !options.medusaUrl) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
-        "API key, redirect URL, and Medusa URL are required in the provider's options."
+        "API key, redirect URL, and Medusa URL are required in the provider's options.",
       );
     }
   }
@@ -126,6 +126,8 @@ abstract class MollieBase extends AbstractPaymentProvider {
     amount,
     currency_code,
   }: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
+    console.log("Payment context:", JSON.stringify(context, null, 2));
+
     const normalizedParams = this.normalizePaymentCreateParams();
     try {
       const createParams: PaymentCreateParams = {
@@ -156,14 +158,14 @@ abstract class MollieBase extends AbstractPaymentProvider {
         })
         .catch((error) => {
           this.logger_.error(
-            `Mollie payment creation failed: ${error.message}`
+            `Mollie payment creation failed: ${error.message}`,
           );
           throw new MedusaError(MedusaError.Types.INVALID_DATA, error.message);
         });
 
       this.debug_ &&
         this.logger_.info(
-          `Mollie payment ${data.id} successfully created with amount ${amount}`
+          `Mollie payment ${data.id} successfully created with amount ${amount}`,
         );
 
       return {
@@ -182,14 +184,14 @@ abstract class MollieBase extends AbstractPaymentProvider {
    * @returns The authorization result
    */
   async authorizePayment(
-    input: AuthorizePaymentInput
+    input: AuthorizePaymentInput,
   ): Promise<AuthorizePaymentOutput> {
     const externalId = input.data?.id;
 
     if (!externalId) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
-        "Payment ID is required"
+        "Payment ID is required",
       );
     }
 
@@ -203,13 +205,13 @@ abstract class MollieBase extends AbstractPaymentProvider {
       if (!["captured", "authorized", "paid"].includes(status)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          `Payment is not authorized: current status is ${status}`
+          `Payment is not authorized: current status is ${status}`,
         );
       }
 
       this.debug_ &&
         this.logger_.info(
-          `Mollie payment ${externalId} successfully authorized with status ${status}`
+          `Mollie payment ${externalId} successfully authorized with status ${status}`,
         );
 
       return {
@@ -218,7 +220,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       };
     } catch (error) {
       this.logger_.error(
-        `Error authorizing payment ${externalId}: ${error.message}`
+        `Error authorizing payment ${externalId}: ${error.message}`,
       );
       throw error;
     }
@@ -230,14 +232,14 @@ abstract class MollieBase extends AbstractPaymentProvider {
    * @returns The capture result
    */
   async capturePayment(
-    input: CapturePaymentInput
+    input: CapturePaymentInput,
   ): Promise<CapturePaymentOutput> {
     const externalId = input.data?.id as string;
 
     if (!externalId) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
-        "Payment ID is required"
+        "Payment ID is required",
       );
     }
 
@@ -271,7 +273,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       if (status !== PaymentSessionStatus.CAPTURED) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          `Payment is not captured: current status is ${status}`
+          `Payment is not captured: current status is ${status}`,
         );
       }
 
@@ -279,7 +281,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
         this.logger_.info(
           `Mollie payment ${externalId} captured with amount ${
             (input.data?.amount as BigNumberRawValue).currency_code
-          } ${(input.data?.amount as BigNumberRawValue).value}`
+          } ${(input.data?.amount as BigNumberRawValue).value}`,
         );
 
       const payment = await this.retrievePayment({
@@ -293,7 +295,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       };
     } catch (error) {
       this.logger_.error(
-        `Error capturing payment ${externalId}: ${error.message}`
+        `Error capturing payment ${externalId}: ${error.message}`,
       );
       throw error;
     }
@@ -310,7 +312,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
     if (!externalId) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
-        "Payment ID is required"
+        "Payment ID is required",
       );
     }
 
@@ -328,7 +330,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       if (!currency) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          "Currency information is missing from payment data"
+          "Currency information is missing from payment data",
         );
       }
 
@@ -343,8 +345,8 @@ abstract class MollieBase extends AbstractPaymentProvider {
       this.debug_ &&
         this.logger_.info(
           `Refund for Mollie payment ${externalId} created with amount ${currency.toUpperCase()} ${parseFloat(
-            value.toString()
-          ).toFixed(2)}`
+            value.toString(),
+          ).toFixed(2)}`,
         );
 
       return {
@@ -352,7 +354,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       };
     } catch (error) {
       this.logger_.error(
-        `Error refunding payment ${externalId}: ${error.message}`
+        `Error refunding payment ${externalId}: ${error.message}`,
       );
       throw error;
     }
@@ -372,7 +374,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       if (payment.status === PaymentStatus.expired) {
         this.debug_ &&
           this.logger_.info(
-            `Mollie payment ${id} is already expired, no need to cancel`
+            `Mollie payment ${id} is already expired, no need to cancel`,
           );
         return {
           data: {
@@ -385,7 +387,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
         .cancel(id)
         .catch((error) => {
           this.logger_.warn(
-            `Could not cancel Mollie payment ${id}: ${error.message}`
+            `Could not cancel Mollie payment ${id}: ${error.message}`,
           );
           return { data: payment as Record<string, any> };
         });
@@ -417,7 +419,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
    * @returns The payment status
    */
   async getPaymentStatus(
-    input: GetPaymentStatusInput
+    input: GetPaymentStatusInput,
   ): Promise<GetPaymentStatusOutput> {
     const paymentId = input.data?.id as string;
 
@@ -438,7 +440,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
 
       this.debug_ &&
         this.logger_.debug(
-          `Mollie payment ${paymentId} status: ${status} (mapped to: ${mappedStatus})`
+          `Mollie payment ${paymentId} status: ${status} (mapped to: ${mappedStatus})`,
         );
 
       return {
@@ -446,7 +448,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       };
     } catch (error) {
       this.logger_.error(
-        `Error retrieving payment status for ${paymentId}: ${error.message}`
+        `Error retrieving payment status for ${paymentId}: ${error.message}`,
       );
       throw error;
     }
@@ -458,7 +460,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
    * @returns The payment details
    */
   async retrievePayment(
-    input: RetrievePaymentInput
+    input: RetrievePaymentInput,
   ): Promise<RetrievePaymentOutput> {
     const paymentId = input.data?.id as string;
 
@@ -469,7 +471,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       };
     } catch (error) {
       this.logger_.error(
-        `Error retrieving Mollie payment ${paymentId}: ${error.message}`
+        `Error retrieving Mollie payment ${paymentId}: ${error.message}`,
       );
       throw error;
     }
@@ -484,7 +486,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
     this.debug_ &&
       this.logger_.info(
         "Note: Mollie does not allow updating amounts on an existing payment. \n" +
-          "Check https://docs.mollie.com/reference/update-payment for allowed updates."
+          "Check https://docs.mollie.com/reference/update-payment for allowed updates.",
       );
 
     const {
@@ -517,7 +519,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       };
     } catch (error) {
       this.logger_.error(
-        `Error updating Mollie payment ${id}: ${error.message}`
+        `Error updating Mollie payment ${id}: ${error.message}`,
       );
       throw error;
     }
@@ -529,7 +531,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
    * @returns The action and data to be processed
    */
   async getWebhookActionAndData(
-    payload: ProviderWebhookPayload["payload"]
+    payload: ProviderWebhookPayload["payload"],
   ): Promise<WebhookActionResult> {
     const { data } = payload;
 
@@ -597,7 +599,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       }
     } catch (error) {
       this.logger_.error(
-        `Error processing webhook for payment ${data.id}: ${error.message}`
+        `Error processing webhook for payment ${data.id}: ${error.message}`,
       );
 
       // Even with errors, try to construct a valid response if we have the payment

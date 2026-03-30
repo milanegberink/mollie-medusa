@@ -34,11 +34,11 @@
     "@mollie/api-client": "^4.1.0"
   },
   "devDependencies": {
-    "@medusajs/admin-shared": "^2.13.4",
+    "@medusajs/admin-shared": "^2.13.5",
     "@medusajs/cli": "2.13.4",
-    "@medusajs/framework": "2.13.4",
-    "@medusajs/medusa": "2.13.4",
-    "@medusajs/types": "^2.13.4",
+    "@medusajs/framework": "2.13.5",
+    "@medusajs/medusa": "2.13.5",
+    "@medusajs/types": "^2.13.5",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",
