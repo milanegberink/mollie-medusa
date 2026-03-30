@@ -138,6 +138,8 @@ abstract class MollieBase extends AbstractPaymentProvider {
           postal_code?: string;
           city?: string;
           country_code?: string;
+          first_name?: string;
+          last_name?: string;
         }
       | undefined;
     const email = (data?.email ?? context?.customer?.email) as
@@ -149,6 +151,8 @@ abstract class MollieBase extends AbstractPaymentProvider {
         ...normalizedParams,
         billingAddress: {
           streetAndNumber: billing?.address_1 || "",
+          givenName: billing?.first_name || "",
+          familyName: billing?.last_name || "",
           postalCode: billing?.postal_code || "",
           city: billing?.city || "",
           country: billing?.country_code || "",
