@@ -194,6 +194,8 @@ abstract class MollieBase extends AbstractPaymentProvider {
         : []),
     ];
 
+    console.dir(lines, { depth: null });
+
     try {
       const createParams: PaymentCreateParams = {
         ...normalizedParams,
