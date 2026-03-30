@@ -40,7 +40,6 @@ import createMollieClient, {
 import { UpdateParameters } from "@mollie/api-client/dist/types/binders/payments/parameters";
 import type {
   OrderCreateParams,
-  OrderLineType,
   Payment as PaymentData,
   PaymentLineType,
 } from "@mollie/api-client";
@@ -150,7 +149,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       | undefined;
     const lines = [
       ...((data?.items ?? []) as any[]).map((item) => ({
-        type: "physical" as OrderLineType,
+        type: "physical" as PaymentLineType,
         name: item.title || item.variant?.product?.title || "Product",
         description: item.title || item.variant?.product?.title || "Product",
         quantity: item.quantity,
@@ -171,7 +170,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
       ...(shippingTotal > 0
         ? [
             {
-              type: "shipping_fee" as OrderLineType,
+              type: "shipping_fee" as PaymentLineType,
               name: "Shipping",
               description: "Shipping",
               quantity: 1,
@@ -193,14 +192,10 @@ abstract class MollieBase extends AbstractPaymentProvider {
         : []),
     ];
     console.dir(lines, { depth: null });
-    const { captureMode, ...validNormalizedParams } = normalizedParams;
-
     try {
-      const createParams: OrderCreateParams = {
+      const createParams: PaymentCreateParams = {
         // ← Orders type
-        ...validNormalizedParams,
-        locale: validNormalizedParams.locale ?? "nl_NL",
-        orderNumber: context?.idempotency_key ?? `order-${Date.now()}`, // ← required field
+        ...normalizedParams,
         billingAddress: {
           streetAndNumber: billing?.address_1 || "",
           givenName: billing?.first_name || "",
@@ -209,33 +204,21 @@ abstract class MollieBase extends AbstractPaymentProvider {
           postalCode: billing?.postal_code || "",
           city: billing?.city || "",
           country: billing?.country_code || "",
-          organizationName: "", // ← required by OrderAddress
-          phone: "", // ← required by OrderAddress
         },
-        shippingAddress: {
-          // ← explicitly override to satisfy OrderAddress
-          streetAndNumber: billing?.address_1 || "",
-          givenName: billing?.first_name || "",
-          familyName: billing?.last_name || "",
-          email: email || "",
-          postalCode: billing?.postal_code || "",
-          city: billing?.city || "",
-          country: billing?.country_code || "",
-          organizationName: "",
-          phone: "",
-        },
+        billingEmail: email || "",
         lines,
         amount: {
           value: parseFloat(amount.toString()).toFixed(2),
           currency: currency_code.toUpperCase(),
         },
-
+        description:
+          this.options_.description || "Mollie payment created by Medusa",
         redirectUrl: this.options_.redirectUrl,
         metadata: {
           idempotency_key: context?.idempotency_key,
         },
       };
-      const order = await this.client_.orders // ← renamed from `data`
+      const order = await this.client_.payments // ← renamed from `data`
         .create(createParams)
         .then((order) => {
           return order as Record<string, any>;
