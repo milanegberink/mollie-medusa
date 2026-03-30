@@ -122,23 +122,38 @@ abstract class MollieBase extends AbstractPaymentProvider {
    * @returns The initiated payment details
    */
   async initiatePayment({
+    data,
     context,
     amount,
     currency_code,
   }: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
-    console.log("Payment context:", JSON.stringify(context, null, 2));
+    console.log("Payment data:", JSON.stringify(data, null, 2));
 
     const normalizedParams = this.normalizePaymentCreateParams();
+
+    const billing = (data?.billing_address ??
+      context?.customer?.billing_address) as
+      | {
+          address_1?: string;
+          postal_code?: string;
+          city?: string;
+          country_code?: string;
+        }
+      | undefined;
+    const email = (data?.email ?? context?.customer?.email) as
+      | string
+      | undefined;
+
     try {
       const createParams: PaymentCreateParams = {
         ...normalizedParams,
         billingAddress: {
-          streetAndNumber: context?.customer?.billing_address?.address_1 || "",
-          postalCode: context?.customer?.billing_address?.postal_code || "",
-          city: context?.customer?.billing_address?.city || "",
-          country: context?.customer?.billing_address?.country_code || "",
+          streetAndNumber: billing?.address_1 || "",
+          postalCode: billing?.postal_code || "",
+          city: billing?.city || "",
+          country: billing?.country_code || "",
         },
-        billingEmail: context?.customer?.email || "",
+        billingEmail: email || "",
         amount: {
           value: parseFloat(amount.toString()).toFixed(2),
           currency: currency_code.toUpperCase(),
