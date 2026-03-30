@@ -153,6 +153,7 @@ abstract class MollieBase extends AbstractPaymentProvider {
           streetAndNumber: billing?.address_1 || "",
           givenName: billing?.first_name || "",
           familyName: billing?.last_name || "",
+          email,
           postalCode: billing?.postal_code || "",
           city: billing?.city || "",
           country: billing?.country_code || "",
